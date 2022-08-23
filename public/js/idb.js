@@ -8,7 +8,7 @@ request.onupgradeneeded = function (event) {
     // save a reference to the database 
     db = event.target.result;
     // create an object store (table) called `new_pizza`, set it to have an auto incrementing primary key of sorts 
-    db.createObjectStore('pending', { autoIncrement: true });
+    db.createObjectStore('new_budget', { autoIncrement: true });
 };
 
 // upon a successful 
@@ -40,7 +40,7 @@ function saveRecord(record) {
     budgetObjectStore.add(record);
 }
 
-function saveRecord() {
+function checkDatabase() {
     // open a transaction on your db
     const transaction = db.transaction(['new_budget'], 'readwrite');
 
@@ -54,7 +54,7 @@ function saveRecord() {
     getAll.onsuccess = function () {
         // if there was data in indexedDb's store, let's send it to the api server
         if (getAll.result.length > 0) {
-            fetch('/api/', {
+            fetch('/api/transaction', {
                 method: 'POST',
                 body: JSON.stringify(getAll.result),
                 headers: {
@@ -69,7 +69,7 @@ function saveRecord() {
                     }
                     // open one more transaction
                     const transaction = db.transaction(['new_budget'], 'readwrite');
-                    // access the new_pizza object store
+                    // access the new_budget object store
                     const budgetObjectStore = transaction.objectStore('new_budget');
                     // clear all items in your store
                     budgetObjectStore.clear();
@@ -83,4 +83,4 @@ function saveRecord() {
     };
 }
 // listen for app coming back online
-window.addEventListener('online', saveRecord);
+window.addEventListener('online', checkDatabase);
